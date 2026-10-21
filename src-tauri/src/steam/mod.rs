@@ -130,6 +130,26 @@ fn file_name(path: &Path) -> String {
     path.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default()
 }
 
+/// Gives the owner write access back if a file was made read-only.
+fn make_writable(path: &Path) {
+    let Ok(meta) = fs::metadata(path) else { return };
+    let mut perms = meta.permissions();
+    if !perms.readonly() {
+        return;
+    }
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        perms.set_mode(perms.mode() | 0o200);
+    }
+    #[cfg(windows)]
+    {
+        #[allow(clippy::permissions_set_readonly_false)]
+        perms.set_readonly(false);
+    }
+    let _ = fs::set_permissions(path, perms);
+}
+
 /// Backs up the current file, then replaces it in one step so a crash can
 /// never leave Steam with a half-written file.
 pub(crate) fn write_steam_file(path: &Path, contents: &str) -> Result<(), String> {
@@ -137,17 +157,14 @@ pub(crate) fn write_steam_file(path: &Path, contents: &str) -> Result<(), String
     let backup = path.with_extension("vdf.unhidden-backup");
     let tmp = path.with_extension("vdf.unhidden-tmp");
     if path.is_file() {
+        // A copy of a read-only file is read-only too, and would block the next backup.
+        make_writable(&backup);
         fs::copy(path, &backup).map_err(|e| format!("couldn't back up {name}: {e}"))?;
+        make_writable(&backup);
         // Some guides tell people to make these files read-only, which would make Steam ignore our change.
-        if let Ok(meta) = fs::metadata(path) {
-            let mut perms = meta.permissions();
-            if perms.readonly() {
-                #[allow(clippy::permissions_set_readonly_false)]
-                perms.set_readonly(false);
-                let _ = fs::set_permissions(path, perms);
-            }
-        }
+        make_writable(path);
     }
+    make_writable(&tmp);
     fs::write(&tmp, contents).map_err(|e| format!("couldn't write {name}: {e}"))?;
     fs::rename(&tmp, path).map_err(|e| {
         let _ = fs::remove_file(&tmp);

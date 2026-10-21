@@ -317,6 +317,13 @@ fn main() {
     fs::set_permissions(fake.vdf(), perms).unwrap();
     let (r, _, _) = fake.switch(BASE + 4, false);
     check(r.is_ok() && fake.user(BASE + 4).unwrap().most_recent, &format!("works even if loginusers.vdf was made read-only: {r:?}"));
+    let backup = fake.dir.join("config").join("loginusers.vdf.unhidden-backup");
+    check(
+        !fs::metadata(&backup).unwrap().permissions().readonly() && !fs::metadata(fake.vdf()).unwrap().permissions().readonly(),
+        "neither the file nor its backup is left read-only",
+    );
+    let (r, _, _) = fake.switch(BASE + 7, false);
+    check(r.is_ok() && fake.user(BASE + 7).unwrap().most_recent, &format!("and the next switch works too: {r:?}"));
     check(fs::read_to_string(fake.config()).unwrap() == CONFIG.replace("CHOOSER", "0"), "picker turned off again after steam saved it as on at exit");
     check(wait_running(true), "steam running again");
 
@@ -364,7 +371,10 @@ fn main() {
     #[cfg(unix)]
     files.push((platform::registry_vdf(&fake), "registry.vdf"));
     for (path, name) in files {
-        let good = fs::read(&path).unwrap();
+        let Ok(good) = fs::read(&path) else {
+            check(false, &format!("{name} exists for the invalid-file check"));
+            continue;
+        };
         fs::write(&path, [0xFF, 0xFE, b'x']).unwrap();
         let before = fake.launches();
         let (r, stages, _) = fake.switch(BASE + 2, false);
