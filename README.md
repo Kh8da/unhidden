@@ -191,7 +191,8 @@ sudo apt install libwebkit2gtk-4.1-dev libgtk-3-dev librsvg2-dev libsoup-3.0-dev
 ```
 
 Every push runs [`build.yml`](.github/workflows/build.yml), which tests and builds all three platforms on real
-Windows, Linux and macOS machines. Pushing a `v*` tag publishes a release.
+Windows, Linux and macOS machines. When `main` has a version (in `src-tauri/tauri.conf.json`) that hasn't been
+released yet, it publishes the release too.
 
 ### Tests
 
