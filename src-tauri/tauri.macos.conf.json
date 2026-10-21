@@ -1,0 +1,44 @@
+{
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Unhidden",
+        "width": 440,
+        "height": 680,
+        "minWidth": 380,
+        "minHeight": 500,
+        "center": true,
+        "resizable": true,
+        "maximizable": false,
+        "decorations": true,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
+        "trafficLightPosition": {
+          "x": 18,
+          "y": 20
+        },
+        "backgroundColor": "#0a0a0a",
+        "theme": "Dark"
+      }
+    ]
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "app",
+      "dmg"
+    ],
+    "category": "Utility",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns"
+    ],
+    "macOS": {
+      "minimumSystemVersion": "11.0",
+      "signingIdentity": "-"
+    }
+  }
+}

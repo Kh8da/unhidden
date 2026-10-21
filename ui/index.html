@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Unhidden</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="titlebar" data-tauri-drag-region>
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 14 14" aria-hidden="true">
+        <rect x="0" y="0" width="4" height="4" rx="1"/><rect x="5" y="0" width="4" height="4" rx="1"/><rect x="10" y="0" width="4" height="4" rx="1"/>
+        <rect x="0" y="5" width="4" height="4" rx="1"/><rect x="5" y="5" width="4" height="4" rx="1"/><rect x="10" y="5" width="4" height="4" rx="1"/>
+        <rect x="0" y="10" width="4" height="4" rx="1"/><rect x="5" y="10" width="4" height="4" rx="1"/><rect class="lit" x="10" y="10" width="4" height="4" rx="1"/>
+      </svg>
+      <span>unhidden</span>
+    </div>
+    <div class="window-buttons">
+      <button class="icon-btn" id="btn-refresh" data-tip="refresh" data-key="F5" aria-label="Refresh">
+        <svg viewBox="0 0 16 16"><path d="M13.5 8a5.5 5.5 0 1 1-1.61-3.89"/><path d="M13.5 2.5v3h-3"/></svg>
+      </button>
+      <button class="icon-btn" id="btn-min" data-tip="minimize" aria-label="Minimize">
+        <svg viewBox="0 0 16 16"><path d="M3.5 8h9"/></svg>
+      </button>
+      <button class="icon-btn close" id="btn-close" data-tip="close" aria-label="Close">
+        <svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="head">
+      <div class="title-row">
+        <h1>accounts</h1>
+        <span class="count" id="count"></span>
+      </div>
+      <div class="status" id="status"></div>
+    </section>
+
+    <label class="search">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+      <input id="search" type="text" placeholder="search" spellcheck="false" autocomplete="off" aria-label="Search accounts">
+      <kbd id="search-hint">/</kbd>
+    </label>
+
+    <div class="list" id="list" role="listbox" aria-label="Steam accounts" tabindex="-1"></div>
+  </main>
+
+  <footer class="footer" id="footer">
+    <span><kbd>↵</kbd> switch</span>
+    <span><kbd>shift ↵</kbd> offline</span>
+    <span><kbd>right-click</kbd> more</span>
+  </footer>
+
+  <div class="menu" id="menu" role="menu" hidden></div>
+
+  <div class="scrim" id="dialog-scrim" hidden>
+    <div class="dialog" id="dialog" role="dialog" aria-modal="true"></div>
+  </div>
+
+  <div class="overlay" id="overlay" hidden>
+    <div class="overlay-body">
+      <div class="overlay-avatar" id="overlay-avatar"></div>
+      <div class="overlay-name" id="overlay-name"></div>
+      <div class="overlay-stage" id="overlay-stage"></div>
+      <div class="bar"><span></span></div>
+      <button class="btn primary" id="overlay-ok" hidden>ok</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="tip" id="tip" role="tooltip"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

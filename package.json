@@ -1,0 +1,17 @@
+{
+  "name": "unhidden",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "tauri": "tauri"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "2.12.3"
+  },
+  "description": "Every Steam account on your PC, one click away. Including the ones Steam hides.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kh8da/unhidden"
+  }
+}
