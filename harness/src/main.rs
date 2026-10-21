@@ -61,6 +61,25 @@ impl Fake {
         }
         self.launches() == n
     }
+    /// Waits until steam is running and has finished starting up (its launch is
+    /// logged), so a slow start can't land in the middle of the next check.
+    fn settle(&self) {
+        wait_running(true);
+        let t = Instant::now();
+        let mut last = self.launches();
+        let mut stable_since = Instant::now();
+        while t.elapsed() < Duration::from_secs(10) {
+            sleep(Duration::from_millis(100));
+            let now = self.launches();
+            if now != last {
+                last = now;
+                stable_since = Instant::now();
+            } else if stable_since.elapsed() >= Duration::from_millis(800) {
+                return;
+            }
+        }
+    }
+
     fn install(&self) -> steam::SteamInstall {
         steam::detect(None).expect("steam detected")
     }
@@ -375,10 +394,15 @@ fn main() {
             check(false, &format!("{name} exists for the invalid-file check"));
             continue;
         };
+        fake.settle();
         fs::write(&path, [0xFF, 0xFE, b'x']).unwrap();
         let before = fake.launches();
         let (r, stages, _) = fake.switch(BASE + 2, false);
-        check(r.is_err() && stages.is_empty() && steam::is_running() && fake.launches() == before, &format!("invalid {name} is refused without closing steam: {r:?}"));
+        let (running, after) = (steam::is_running(), fake.launches());
+        check(
+            r.is_err() && stages.is_empty() && running && after == before,
+            &format!("invalid {name} is refused without closing steam: {r:?} (stages {stages:?}, running {running}, launches {before}->{after})"),
+        );
         check(fs::read(&path).unwrap() == [0xFF, 0xFE, b'x'], &format!("invalid {name} left exactly as it was"));
         fs::write(&path, good).unwrap();
     }
